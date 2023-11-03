@@ -11,11 +11,11 @@ class EmotionConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         await self.accept()
         self.cap = cv2.VideoCapture(0)
-        json_file = open("modal/facialemotionmodel.json", "r")
+        json_file = open("model/facialemotionmodel.json", "r")
         self.model_json = json_file.read()
         json_file.close()
         self.model = model_from_json(self.model_json)
-        self.model.load_weights("modal/facialemotionmodel.h5")
+        self.model.load_weights("model/facialemotionmodel.h5")
 
     async def disconnect(self, close_code):
         self.cap.release()
@@ -63,7 +63,7 @@ class EmotionConsumer(AsyncWebsocketConsumer):
             except Exception as e:
                 print("Error in processing video:", e)
             # await self.send(text_data="Hello world2!")
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(0.08)
 
     async def send_binary(self, event):
         await self.send(event['bytes'], binary=True)

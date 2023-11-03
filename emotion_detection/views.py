@@ -9,11 +9,11 @@ import numpy as np  # Import NumPy here
 from keras.models import model_from_json
 
 # Load the emotion detection model
-json_file = open("modal/facialemotionmodel.json", "r")
+json_file = open("model/facialemotionmodel.json", "r")
 model_json = json_file.read()
 json_file.close()
 model = model_from_json(model_json)
-model.load_weights("modal/facialemotionmodel.h5")
+model.load_weights("model/facialemotionmodel.h5")
 
 # Create an instance of the CascadeClassifier
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
