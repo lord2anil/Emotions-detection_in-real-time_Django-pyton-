@@ -63,7 +63,7 @@ class EmotionConsumer(AsyncWebsocketConsumer):
             except Exception as e:
                 print("Error in processing video:", e)
             # await self.send(text_data="Hello world2!")
-            await asyncio.sleep(0.08)
+            await asyncio.sleep(0.01)
 
     async def send_binary(self, event):
         await self.send(event['bytes'], binary=True)
