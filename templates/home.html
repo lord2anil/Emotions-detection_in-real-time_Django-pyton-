@@ -1,0 +1,27 @@
+<!-- emotion_detection/templates/emotion_detection/emotion.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Real-time Emotion Detection</title>
+</head>
+<body>
+    <h1>Real-time Emotion Detection</h1>
+    <img id="emotion_frame" alt="Real-time Emotion" style="width: 100%; max-width: 640px;">
+    <p id="emotion">Emotion: Unknown</p>
+    <script>
+        var video = document.getElementById('emotion_frame');
+        var emotionLabel = document.getElementById('emotion');
+        function updateFrame() {
+            fetch("{% url 'get_frame' %}")
+                .then(response => response.json())
+                .then(data => {
+                    video.src = data.frame;
+                    emotionLabel.innerText = "Emotion: " + data.emotion;
+                    requestAnimationFrame(updateFrame);
+                });
+        }
+        updateFrame();
+    </script>
+</body>
+</html>
