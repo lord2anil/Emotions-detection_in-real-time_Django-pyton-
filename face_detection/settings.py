@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-z^)%v6#@0su%mp&!1dvhz&bfcoj5okcyxk1z)#7mra()kb^a7e
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -37,7 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'emotion_detection'
+    'emotion_detection',
+    'channels',
+    'daphne'
 ]
 
 MIDDLEWARE = [
@@ -69,6 +71,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'face_detection.wsgi.application'
+ASGI_APPLICATION = "face_detection.routing.application"
 
 
 # Database

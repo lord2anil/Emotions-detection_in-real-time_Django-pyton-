@@ -7,21 +7,35 @@
 </head>
 <body>
     <h1>Real-time Emotion Detection</h1>
+    <button id="start_button">Start</button>
+    <button id="stop_button">Stop</button>
     <img id="emotion_frame" alt="Real-time Emotion" style="width: 100%; max-width: 640px;">
-    <p id="emotion">Emotion: Unknown</p>
     <script>
         var video = document.getElementById('emotion_frame');
-        var emotionLabel = document.getElementById('emotion');
-        function updateFrame() {
-            fetch("{% url 'get_frame' %}")
-                .then(response => response.json())
-                .then(data => {
-                    video.src = data.frame;
-                    emotionLabel.innerText = "Emotion: " + data.emotion;
-                    requestAnimationFrame(updateFrame);
-                });
-        }
-        updateFrame();
+        var startButton = document.getElementById('start_button');
+        var stopButton = document.getElementById('stop_button');
+        var socket = new WebSocket('ws://' + window.location.host + '/ws/emotion_detection/');
+
+        startButton.addEventListener('click', function() {
+            socket.send('start');
+        });
+
+        stopButton.addEventListener('click', function() {
+            socket.send('stop');
+        });
+
+        socket.onmessage = function (event) {
+            // Assuming the data received is binary data
+            var blob = new Blob([event.data], { type: 'image/jpeg' });
+            var url = URL.createObjectURL(blob);
+        
+            video.src = url;
+        };
+
+        socket.onclose = function(event) {
+            console.error('Socket closed unexpectedly:', event);
+        };
     </script>
+    
 </body>
 </html>
