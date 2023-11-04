@@ -71,7 +71,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'face_detection.wsgi.application'
-ASGI_APPLICATION = "face_detection.routing.application"
+ASGI_APPLICATION = "face_detection.asgi.application"
 
 
 # Database
