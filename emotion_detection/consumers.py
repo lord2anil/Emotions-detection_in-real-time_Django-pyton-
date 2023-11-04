@@ -10,7 +10,7 @@ import asyncio
 class EmotionConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         await self.accept()
-        self.cap = cv2.VideoCapture(0)
+        self.cap = cv2.VideoCapture(-1)
         json_file = open("model/facialemotionmodel.json", "r")
         self.model_json = json_file.read()
         json_file.close()
