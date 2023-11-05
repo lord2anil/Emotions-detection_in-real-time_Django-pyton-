@@ -85,7 +85,7 @@
         var emotionVideo = document.getElementById('emotion_frame');
         var startButton = document.getElementById('start_button');
         var stopButton = document.getElementById('stop_button');
-        var socket = new WebSocket('wss://' + window.location.host + '/ws/emotion_detection/');
+        var socket = new WebSocket('ws://' + window.location.host + '/ws/emotion_detection/');
         let canvas = document.createElement("canvas");
         let ctx = canvas.getContext("2d");
 
@@ -142,7 +142,7 @@
                           });
                       }
                     };
-                    mediaRecorder.start(100); // Send data every 100 milliseconds (adjust this value as needed)
+                    mediaRecorder.start(500); // Send data every 100 milliseconds (adjust this value as needed)
                   };
                 })
                 .catch(function (error) {
