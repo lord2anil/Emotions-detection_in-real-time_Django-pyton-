@@ -33,9 +33,7 @@ class EmotionConsumer(AsyncWebsocketConsumer):
             # print(len(self.chunks))
             if len(self.chunks) > 0:
                 frame_str = self.chunks.pop(0)
-                decodeit = open('hello_level.jpeg', 'wb') 
-                decodeit.write(base64.b64decode((frame_str))) 
-                decodeit.close() 
+                
                   #working 
 
 
