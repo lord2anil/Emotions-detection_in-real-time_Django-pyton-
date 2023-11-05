@@ -150,4 +150,4 @@ Werkzeug==3.0.1
 widgetsnbextension==4.0.9
 wrapt==1.14.1
 zope.interface==6.1
-# daphne face_detection.asgi:application
+# nohup  daphne   -b 0.0.0.0 -p 8000 face_detection.asgi:application &

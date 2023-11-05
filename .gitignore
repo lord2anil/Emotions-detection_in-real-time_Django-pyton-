@@ -1,1 +1,4 @@
 migrations
+__pycache__
+emotion_detection/__pycache__/consumers.cpython-310.pyc
+emotion_detection/__pycache__/consumers.cpython-310.pyc

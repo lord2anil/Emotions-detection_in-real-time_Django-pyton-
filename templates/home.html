@@ -1,4 +1,4 @@
-<!-- emotion_detection/templates/emotion_detection/emotion.html -->
+<!-- emotion_detection/templates/emotion_detection/emotion.html
 
 <!DOCTYPE html>
 <html>
@@ -38,4 +38,210 @@
     </script>
     
 </body>
+
+ navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function(stream) {
+                userVideo.srcObject = stream;
+
+                // Start recording the camera stream
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.ondataavailable = function(event) {
+                    if (event.data.size > 0) {
+                        // Send video data to the server in real-time
+                        socket.send(event.data);
+                    }
+                };
+                mediaRecorder.start(100); // Send data every 100 milliseconds (adjust this value as needed)
+            })
+            .catch(function(error) {
+                console.error('Error accessing camera:', error);
+            });
+</html> -->
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Real-time Emotion Detection</title>
+  </head>
+  <body>
+    <h1>Real-time Emotion Detection</h1>
+    <div>
+      <video
+        id="user_video"
+        autoplay
+        style="width: 50%; max-width: 320px"
+      ></video>
+      <!-- <video
+        id="emotion_video"
+        autoplay
+        style="width: 50%; max-width: 320px"
+      ></video> -->
+      <img id="emotion_frame" alt="Real-time Emotion" style="width: 100%; max-width: 640px;">
+    </div>
+    <button id="start_button">Start</button>
+    <button id="stop_button">Stop</button>
+    <script>
+        var userVideo = document.getElementById('user_video');
+        var emotionVideo = document.getElementById('emotion_frame');
+        var startButton = document.getElementById('start_button');
+        var stopButton = document.getElementById('stop_button');
+        var socket = new WebSocket('ws://' + window.location.host + '/ws/emotion_detection/');
+        let canvas = document.createElement("canvas");
+        let ctx = canvas.getContext("2d");
+
+        var mediaRecorder;
+        var chunks = [];
+        function captureAndConvertToDataURL() {
+            return new Promise((resolve, reject) => {
+                // Ensure the video element is fully loaded
+                if (userVideo.readyState >= 2) {
+                    // Set the canvas size to match the video element
+                    canvas.width = userVideo.videoWidth;
+                    canvas.height = userVideo.videoHeight;
+        
+                    // Capture the current video frame
+                    ctx.drawImage(userVideo, 0, 0, canvas.width, canvas.height);
+        
+                    // Convert the canvas image to a data URL (JPEG format)
+                    let dataURL = canvas.toDataURL("image/jpeg");
+                     // Specify the image format (e.g., JPEG)
+                     dataURL = dataURL.replace(/^data:image\/(png|jpg|jpeg);base64,/, "");
+                    
+        
+                    if (dataURL) {
+                        resolve(dataURL);
+                    } else {
+                        reject("Failed to create a data URL from the canvas image.");
+                    }
+                } else {
+                    reject("Video element is not fully loaded.");
+                }
+            });
+        }
+
+        startButton.addEventListener('click', function() {
+            // Access the user's camera
+        
+            navigator.mediaDevices
+                .getUserMedia({ video: true })
+                .then(function (stream) {
+                  userVideo.srcObject = stream;
+                  userVideo.onloadeddata = function () {
+                    // Start recording the camera stream
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.ondataavailable = function (event) {
+                      if (event.data.size > 0) {
+                        captureAndConvertToDataURL()
+                          .then((dataURL) => {
+                            // Send the frame data to the server in real-time
+                            <!-- console.log(dataURL) -->
+                            socket.send(dataURL);
+                          })
+                          .catch((error) => {
+                            console.error(error);
+                          });
+                      }
+                    };
+                    mediaRecorder.start(100); // Send data every 100 milliseconds (adjust this value as needed)
+                  };
+                })
+                .catch(function (error) {
+                  console.error("Error accessing camera:", error);
+                });
+        });
+        
+
+        stopButton.addEventListener('click', function() {
+            // Stop the camera stream and recording
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
+            if (userVideo.srcObject) {
+                userVideo.srcObject.getTracks().forEach(track => track.stop());
+                userVideo.srcObject = null;
+            }
+        });
+
+        socket.onmessage = function (event) {
+            // Assuming the data received is binary data
+            
+            var blob = new Blob([event.data], { type: 'video/webm' });
+            var url = URL.createObjectURL(blob);
+            
+            emotionVideo.src = url;
+        };
+
+        socket.onclose = function(event) {
+            console.error('Socket closed unexpectedly:', event);
+        };
+    </script>
+
+    <!-- <script>
+      // Define global variables to capture video frames
+      let canvas = document.createElement("canvas");
+      let ctx = canvas.getContext("2d");
+      let userVideo = document.getElementById("user_video"); // Assuming you have an HTML video element with the id 'userVideo'
+
+      // Function to capture and convert the canvas image to bytes
+      function captureAndConvertToBytes() {
+        return new Promise((resolve, reject) => {
+          // Ensure the video element is fully loaded
+          if (userVideo.readyState >= 2) {
+            // Set the canvas size to match the video element
+            canvas.width = userVideo.videoWidth;
+            canvas.height = userVideo.videoHeight;
+
+            // Capture the current video frame
+            ctx.drawImage(userVideo, 0, 0, canvas.width, canvas.height);
+
+            // Convert the canvas image to a Blob
+            canvas.toBlob(function (blob) {
+              if (blob) {
+                // Convert the Blob to an ArrayBuffer (bytes)
+                const reader = new FileReader();
+                reader.onload = function () {
+                  const frameBytes = new Uint8Array(reader.result);
+                  resolve(frameBytes);
+                };
+                reader.readAsArrayBuffer(blob);
+              } else {
+                reject("Failed to create a Blob from the canvas image.");
+              }
+            }, "image/jpeg"); // Specify the image format (e.g., JPEG)
+
+            // Note: You can change the image format to match your requirements.
+          } else {
+            reject("Video element is not fully loaded.");
+          }
+        });
+      }
+
+      // Access the user's camera
+      navigator.mediaDevices
+        .getUserMedia({ video: true })
+        .then(function (stream) {
+          userVideo.srcObject = stream;
+          userVideo.onloadeddata = function () {
+            // Start recording the camera stream
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.ondataavailable = function (event) {
+              if (event.data.size > 0) {
+                captureAndConvertToBytes()
+                  .then((frameBytes) => {
+                    // Send the frame data to the server in real-time
+                    socket.send(frameBytes);
+                  })
+                  .catch((error) => {
+                    console.error(error);
+                  });
+              }
+            };
+            mediaRecorder.start(100); // Send data every 100 milliseconds (adjust this value as needed)
+          };
+        })
+        .catch(function (error) {
+          console.error("Error accessing camera:", error);
+        });
+    </script> -->
+  </body>
 </html>
